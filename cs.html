@@ -66,8 +66,10 @@
             function check(elsTime) {
                 if ( elsTime > 3000 || document.hidden || document.webkitHidden) {
                     cb(1);   //1安装
+			alert("安装  11")
                 } else {
                     cb(0);    //0未安装
+			alert("未安装  00")
                 }
             }
             //启动间隔20ms运行的定时器，并检测累计消耗时间是否超过3000ms，超过则结束
