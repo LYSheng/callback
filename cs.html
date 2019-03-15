@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>测试唤起app</title>
+</head>
+<style>
+    body,html{
+        overflow: hidden;
+    }
+    .box{
+        display: flex;
+        justify-content: space-between;
+        margin-top: 35px;
+        overflow: hidden;
+    }
+    .box a{
+        display: block;
+        width: 120px;
+        height: 35px;
+        text-align: center;
+        line-height: 35px;
+        font-size: 16px;
+        color: #fff;
+        background-color: brown;
+    }
+</style>
+<body>
+    <div class="box">
+        <a class="az" href="#">安卓下载</a>
+    </div>
+</body>
+<script>
+    // var isAndroid;
+    // var isIOS;
+    // var id;
+    // var ua = window.navigator.userAgent.toLowerCase();
+	// var u = navigator.userAgent;
+    // isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //g
+	// isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+	// var micromessenger = ua.match(/MicroMessenger/i);
+    // var weixin = micromessenger == 'micromessenger'?true:false;
+    var az=document.querySelector(".az");
+    az.onclick=function(){
+        openApp('http://a.app.qq.com/o/simple.jsp?pkgname=com.tencent.weishi&ckey=CK1422643011532',0)
+    }
+// 检查客户端
+    BrowserInfo = function() {
+    var json = {
+        userAgent: navigator.userAgent.toLowerCase(),
+        isAndroid: Boolean(navigator.userAgent.match(/android/ig)),
+        isIphone: Boolean(navigator.userAgent.match(/iphone|ipod/ig)),
+        isIpad: Boolean(navigator.userAgent.match(/ipad/ig)),
+        isWeixin: Boolean(navigator.userAgent.match(/MicroMessenger/ig)),
+    }
+    
+    return json;
+    }
+    // 打开
+    openApp = function(openUrl, callback) {
+    //检查app是否打开   cb为回调函数，根据返回0 or 1来判断是否安装。
+        function checkOpen(cb){
+            var _clickTime = +(new Date());
+            function check(elsTime) {
+                if ( elsTime > 3000 || document.hidden || document.webkitHidden) {
+                    cb(1);   //1安装
+                } else {
+                    cb(0);    //0未安装
+                }
+            }
+            //启动间隔20ms运行的定时器，并检测累计消耗时间是否超过3000ms，超过则结束
+            var _count = 0, intHandle;
+            intHandle = setInterval(function(){
+                _count++;        
+                var elsTime = +(new Date()) - _clickTime;
+                if (_count>=100 || elsTime > 3000 ) {
+                    clearInterval(intHandle);
+                    check(elsTime);
+                }
+            }, 20);
+        }
+        //在iframe 中打开APP
+        var ifr = document.createElement('iframe');
+        ifr.src = openUrl;
+        ifr.style.display = 'none';
+
+        if (callback) {
+        //客户端检测微信直接跳应用宝链接
+        var browser = BrowserInfo();
+        //使用微链接
+        var encodeUri = encodeURIComponent(openUrl);
+
+        if (browser.isWeixin) {
+            window.location.href = openUrl+'&android_schema='+encodeUri;
+        }else{
+            checkOpen(function(opened){
+                callback && callback(opened);
+            });
+        
+        }
+        }
+        document.body.appendChild(ifr);      
+        setTimeout(function() {
+            document.body.removeChild(ifr);
+        }, 2000);  
+
+    }   
+
+</script>
+</html>
